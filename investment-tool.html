@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Investment Tool</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        width: 350px;
+    }
+
+    h2 { text-align: center; }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    input {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 10px;
+        background: #0078d7;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button:hover { background: #005fa3; }
+
+    .result {
+        margin-top: 20px;
+        padding: 10px;
+        background: #f0f4f8;
+        border-radius: 5px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Investment Tool</h2>
+
+    <label>Risikobereitschaft (1-10)</label>
+    <input id="risk">
+
+    <label>Sparquote (1-10)</label>
+    <input id="savings">
+
+    <label>Anlagehorizont (1-10)</label>
+    <input id="horizon">
+
+    <label>Finanzwissen (1-10)</label>
+    <input id="knowledge">
+
+    <label>Zielrendite (1-10)</label>
+    <input id="targetReturn">
+
+    <button onclick="calculate()">Berechnen</button>
+
+    <div class="result" id="output"></div>
+</div>
+
+<script>
+function calculate() {
+    // Inputs
+    let risk = parseInt(document.getElementById("risk").value);
+    let savings = parseInt(document.getElementById("savings").value);
+    let horizon = parseInt(document.getElementById("horizon").value);
+    let knowledge = parseInt(document.getElementById("knowledge").value);
+    let targetReturn = parseInt(document.getElementById("targetReturn").value);
+
+    // Validation: ganze Zahlen 1-10
+    const inputs = [risk, savings, horizon, knowledge, targetReturn];
+    if (inputs.some(x => isNaN(x) || x < 1 || x > 10)) {
+        document.getElementById("output").innerHTML = "Bitte alle Felder korrekt ausfüllen (1-10, ganze Zahlen).";
+        return;
+    }
+
+    // Rohwerte berechnen
+    let rawSafety = 30 - (risk - 5) * 3; // Risiko ↑ → Sicherheitsanlage ↓
+    let rawActive = knowledge * 5 + targetReturn * 3 + risk * 2;
+    let rawPassive = horizon * 4 + 10;
+    let rawCash = savings * 2;
+
+    // keine negativen Werte
+    rawSafety = Math.max(rawSafety, 0);
+    rawActive = Math.max(rawActive, 0);
+    rawPassive = Math.max(rawPassive, 0);
+    rawCash = Math.max(rawCash, 5); // mindestens 5
+
+    // Summe der Rohwerte
+    let total = rawSafety + rawActive + rawPassive + rawCash;
+
+    // Normalisierung auf 100%
+    let safety = (rawSafety / total) * 100;
+    let active = (rawActive / total) * 100;
+    let passive = (rawPassive / total) * 100;
+    let cash = (rawCash / total) * 100;
+
+    // Ausgabe
+    document.getElementById("output").innerHTML = `
+        <h3>Empfohlene Kapitalaufteilung</h3>
+        <b>Sicherheitsanlage:</b> ${safety.toFixed(2)}% <br>
+        <b>Aktives Investieren:</b> ${active.toFixed(2)}% <br>
+        <b>Passives Investieren:</b> ${passive.toFixed(2)}% <br>
+        <b>Liquiditätsreserve:</b> ${cash.toFixed(2)}%
+    `;
+}
+</script>
+
+</body>
+</html>
